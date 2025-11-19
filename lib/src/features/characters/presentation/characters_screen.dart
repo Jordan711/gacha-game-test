@@ -56,7 +56,7 @@ class _CharactersScreenState extends ConsumerState<CharactersScreen> {
                           children: [
                             Image.asset(
                               'assets/images/characters/${character.name.toLowerCase()}.png',
-                              height: 300,
+                              height: 250,
                             ),
                             SizedBox(height: 20),
                             Text(
