@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:game/src/features/economy/widgets/gem_balance_widget.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            GemBalanceWidget(),
+            const SizedBox(height: 12),
             Image.asset('assets/images/game_banner.png', height: 200),
             const SizedBox(height: 20),
             _buildMenuButton(
@@ -48,6 +52,14 @@ class HomeScreen extends StatelessWidget {
                   const SnackBar(content: Text('Inventory coming soon!')),
                 );
               },
+            ),
+            const SizedBox(height: 20),
+            _buildMenuButton(
+              context,
+              title: 'Purchase Gems',
+              icon: Icons.diamond,
+              color: Colors.green,
+              onTap: () => context.push('/purchase_gems'),
             ),
           ],
         ),

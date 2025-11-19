@@ -2,6 +2,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:game/src/features/economy/data/gem_balance_provider.dart';
+import 'package:game/src/features/economy/widgets/gem_balance_widget.dart';
 import '../../characters/domain/character.dart';
 import '../../characters/data/inventory_provider.dart';
 import 'package:game/src/core/theme/rarity_colors.dart';
@@ -59,12 +61,15 @@ class _GachaScreenState extends ConsumerState<GachaScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final gemBalance = ref.watch(gemBalanceProvider);
+
     return Scaffold(
       appBar: AppBar(title: const Text('Summon Gate')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            GemBalanceWidget(),
             if (_isSummoning)
               const CircularProgressIndicator()
             else if (_lastSummoned != null)
@@ -76,7 +81,16 @@ class _GachaScreenState extends ConsumerState<GachaScreen> {
               ),
             const SizedBox(height: 40),
             ElevatedButton(
-              onPressed: _isSummoning ? null : _summon,
+              onPressed: () {
+                if (gemBalance < 100) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Not enough gems!')),
+                  );
+                  return;
+                }
+                ref.read(gemBalanceProvider.notifier).spend(100);
+                _summon();
+              },
               child: const Text('Summon (100 Gems)'),
             ),
           ],
