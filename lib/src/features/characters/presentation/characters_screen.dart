@@ -42,6 +42,43 @@ class _CharactersScreenState extends ConsumerState<CharactersScreen> {
               itemBuilder: (context, index) {
                 final character = inventory[index];
                 return ListTile(
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: Text(
+                          character.name,
+                          textAlign: TextAlign.center,
+                        ),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Image.asset(
+                              'assets/images/${character.name.toLowerCase()}.png',
+                              height: 100,
+                            ),
+                            SizedBox(height: 20),
+                            Text(
+                              character.rarity.name.toUpperCase(),
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              'ATK: ${character.attack}  DEF: ${character.defense}  HP: ${character.hp}',
+                            ),
+                          ],
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('Close'),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                   leading: Image.asset(
                     'assets/images/${character.name.toLowerCase()}.png',
                     height: 50,
@@ -57,9 +94,30 @@ class _CharactersScreenState extends ConsumerState<CharactersScreen> {
                   trailing: IconButton(
                     icon: const Icon(Icons.delete),
                     onPressed: () {
-                      ref
-                          .read(inventoryProvider.notifier)
-                          .removeCharacter(character.id);
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Delete Character'),
+                          content: Text(
+                            'Are you sure you want to delete this character? This is a ${character.rarity.name} character!',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                ref
+                                    .read(inventoryProvider.notifier)
+                                    .removeCharacter(character.id);
+                                Navigator.pop(context);
+                              },
+                              child: const Text('Delete'),
+                            ),
+                          ],
+                        ),
+                      );
                     },
                   ),
                 );
