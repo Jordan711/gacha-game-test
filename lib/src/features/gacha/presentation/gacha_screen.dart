@@ -116,6 +116,11 @@ class _GachaScreenState extends ConsumerState<GachaScreen> {
               ),
             ),
             const SizedBox(height: 10),
+            Image.asset(
+              'assets/images/${character.name.toLowerCase()}.png',
+              height: 100,
+            ),
+            const SizedBox(height: 10),
             Text(
               character.name,
               style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),

@@ -46,7 +46,7 @@ class _BattleScreenState extends ConsumerState<BattleScreen> {
     final myCharacter = inventory.reduce(
       (curr, next) => curr.attack > next.attack ? curr : next,
     );
-    final enemy = Character.random('Dark Knight', Rarity.epic);
+    final enemy = Character.random('Monster', Rarity.epic);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Battle Arena')),
@@ -115,6 +115,11 @@ class _BattleScreenState extends ConsumerState<BattleScreen> {
             Text(
               isEnemy ? 'ENEMY' : 'YOU',
               style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Image.asset(
+              'assets/images/${character.name.toLowerCase()}.png',
+              height: 100,
             ),
             const SizedBox(height: 8),
             Text(character.name, style: const TextStyle(fontSize: 24)),
