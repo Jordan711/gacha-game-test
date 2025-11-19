@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:audioplayers/audioplayers.dart';
 import '../../characters/domain/character.dart';
 import '../../characters/data/inventory_provider.dart';
 
@@ -14,6 +15,19 @@ class GachaScreen extends ConsumerStatefulWidget {
 class _GachaScreenState extends ConsumerState<GachaScreen> {
   Character? _lastSummoned;
   bool _isSummoning = false;
+  late final AudioPlayer _audioPlayer;
+
+  @override
+  void initState() {
+    super.initState();
+    _audioPlayer = AudioPlayer();
+  }
+
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    super.dispose();
+  }
 
   void _summon() async {
     setState(() {
@@ -28,12 +42,13 @@ class _GachaScreenState extends ConsumerState<GachaScreen> {
     final rarity = Rarity.values[random.nextInt(Rarity.values.length)];
     final names = ['Warrior', 'Mage', 'Archer', 'Rogue', 'Paladin'];
     final name = names[random.nextInt(names.length)];
-    
+
     final newCharacter = Character.random(name, rarity);
 
     ref.read(inventoryProvider.notifier).addCharacter(newCharacter);
 
     if (mounted) {
+      await _audioPlayer.play(AssetSource('audio/applause01.ogg'));
       setState(() {
         _isSummoning = false;
         _lastSummoned = newCharacter;
@@ -72,10 +87,18 @@ class _GachaScreenState extends ConsumerState<GachaScreen> {
   Widget _buildSummonResult(Character character) {
     Color rarityColor;
     switch (character.rarity) {
-      case Rarity.common: rarityColor = Colors.grey; break;
-      case Rarity.rare: rarityColor = Colors.blue; break;
-      case Rarity.epic: rarityColor = Colors.purple; break;
-      case Rarity.legendary: rarityColor = Colors.orange; break;
+      case Rarity.common:
+        rarityColor = Colors.grey;
+        break;
+      case Rarity.rare:
+        rarityColor = Colors.blue;
+        break;
+      case Rarity.epic:
+        rarityColor = Colors.purple;
+        break;
+      case Rarity.legendary:
+        rarityColor = Colors.orange;
+        break;
     }
 
     return Card(
@@ -86,7 +109,11 @@ class _GachaScreenState extends ConsumerState<GachaScreen> {
           children: [
             Text(
               character.rarity.name.toUpperCase(),
-              style: TextStyle(color: rarityColor, fontWeight: FontWeight.bold, letterSpacing: 2),
+              style: TextStyle(
+                color: rarityColor,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 2,
+              ),
             ),
             const SizedBox(height: 10),
             Text(
@@ -113,8 +140,14 @@ class _GachaScreenState extends ConsumerState<GachaScreen> {
   Widget _buildStat(String label, int value) {
     return Column(
       children: [
-        Text(label, style: const TextStyle(fontSize: 12, color: Colors.white54)),
-        Text(value.toString(), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 12, color: Colors.white54),
+        ),
+        Text(
+          value.toString(),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
       ],
     );
   }
