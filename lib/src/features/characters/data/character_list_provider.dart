@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../domain/character.dart';
 
-class InventoryNotifier extends StateNotifier<List<Character>> {
-  InventoryNotifier() : super([]);
+class CharacterListNotifier extends StateNotifier<List<Character>> {
+  CharacterListNotifier() : super([]);
 
   void addCharacter(Character character) {
     state = [...state, character];
@@ -13,7 +13,7 @@ class InventoryNotifier extends StateNotifier<List<Character>> {
   }
 }
 
-final inventoryProvider =
-    StateNotifierProvider<InventoryNotifier, List<Character>>((ref) {
-      return InventoryNotifier();
+final characterListProvider =
+    StateNotifierProvider<CharacterListNotifier, List<Character>>((ref) {
+      return CharacterListNotifier();
     });

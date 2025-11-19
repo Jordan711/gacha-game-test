@@ -46,12 +46,7 @@ class HomeScreen extends ConsumerWidget {
               title: 'Inventory',
               icon: Icons.inventory,
               color: Colors.blue,
-              onTap: () {
-                // TODO: Implement inventory screen
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Inventory coming soon!')),
-                );
-              },
+              onTap: () => context.push('/inventory'),
             ),
             const SizedBox(height: 20),
             _buildMenuButton(

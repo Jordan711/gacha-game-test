@@ -1,7 +1,7 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../characters/data/inventory_provider.dart';
+import '../../characters/data/character_list_provider.dart';
 import '../../characters/domain/character.dart';
 
 class BattleScreen extends ConsumerStatefulWidget {
@@ -28,7 +28,7 @@ class _BattleScreenState extends ConsumerState<BattleScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final inventory = ref.watch(inventoryProvider);
+    final inventory = ref.watch(characterListProvider);
 
     if (inventory.isEmpty) {
       return Scaffold(

@@ -5,7 +5,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:game/src/features/economy/data/gem_balance_provider.dart';
 import 'package:game/src/features/economy/widgets/gem_balance_widget.dart';
 import '../../characters/domain/character.dart';
-import '../../characters/data/inventory_provider.dart';
+import '../../characters/data/character_list_provider.dart';
 import 'package:game/src/core/theme/rarity_colors.dart';
 
 class GachaScreen extends ConsumerStatefulWidget {
@@ -48,7 +48,7 @@ class _GachaScreenState extends ConsumerState<GachaScreen> {
 
     final newCharacter = Character.random(name, rarity);
 
-    ref.read(inventoryProvider.notifier).addCharacter(newCharacter);
+    ref.read(characterListProvider.notifier).addCharacter(newCharacter);
 
     if (mounted) {
       await _audioPlayer.play(AssetSource('audio/applause01.ogg'));
@@ -70,6 +70,7 @@ class _GachaScreenState extends ConsumerState<GachaScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             GemBalanceWidget(),
+            const SizedBox(height: 20),
             if (_isSummoning)
               const CircularProgressIndicator()
             else if (_lastSummoned != null)

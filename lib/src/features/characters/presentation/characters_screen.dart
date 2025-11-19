@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:game/src/core/theme/rarity_colors.dart';
-import '../../characters/data/inventory_provider.dart';
+import '../data/character_list_provider.dart';
 
 class CharactersScreen extends ConsumerStatefulWidget {
   const CharactersScreen({super.key});
@@ -28,7 +28,7 @@ class _CharactersScreenState extends ConsumerState<CharactersScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final inventory = ref.watch(inventoryProvider);
+    final inventory = ref.watch(characterListProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Characters')),
@@ -114,7 +114,7 @@ class _CharactersScreenState extends ConsumerState<CharactersScreen> {
                             TextButton(
                               onPressed: () {
                                 ref
-                                    .read(inventoryProvider.notifier)
+                                    .read(characterListProvider.notifier)
                                     .removeCharacter(character.id);
                                 Navigator.pop(context);
                               },
