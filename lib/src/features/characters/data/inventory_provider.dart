@@ -7,12 +7,13 @@ class InventoryNotifier extends StateNotifier<List<Character>> {
   void addCharacter(Character character) {
     state = [...state, character];
   }
-  
+
   void removeCharacter(String id) {
     state = state.where((c) => c.id != id).toList();
   }
 }
 
-final inventoryProvider = StateNotifierProvider<InventoryNotifier, List<Character>>((ref) {
-  return InventoryNotifier();
-});
+final inventoryProvider =
+    StateNotifierProvider<InventoryNotifier, List<Character>>((ref) {
+      return InventoryNotifier();
+    });

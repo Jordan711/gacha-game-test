@@ -22,6 +22,14 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 20),
             _buildMenuButton(
               context,
+              title: 'Characters',
+              icon: Icons.people,
+              color: Colors.yellow,
+              onTap: () => context.push('/characters'),
+            ),
+            const SizedBox(height: 20),
+            _buildMenuButton(
+              context,
               title: 'Battle Arena',
               icon: Icons.sports_kabaddi,
               color: Colors.red,
