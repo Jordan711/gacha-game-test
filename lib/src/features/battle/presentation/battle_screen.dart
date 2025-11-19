@@ -1,7 +1,7 @@
-import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:game/src/features/battle/data/battle_controller.dart';
 import '../../characters/data/character_list_provider.dart';
 import '../../characters/domain/character.dart';
 
@@ -15,20 +15,17 @@ class BattleScreen extends ConsumerStatefulWidget {
 class _BattleScreenState extends ConsumerState<BattleScreen> {
   late final AudioPlayer _audioPlayer;
 
-  Character? _playerCharacter;
-  Character? _enemyCharacter;
-  int _playerHp = 0;
-  int _enemyHp = 0;
-  int _playerMaxHp = 1;
-  int _enemyMaxHp = 1;
-  bool _isPlayerTurn = true;
-  String _battleLog = 'Battle Start!';
-  bool _battleEnded = false;
-
   @override
   void initState() {
     super.initState();
     _audioPlayer = AudioPlayer();
+    // Initialize or reset battle state when entering the screen
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final inventory = ref.read(characterListProvider);
+      if (inventory.isNotEmpty) {
+        ref.read(battleControllerProvider.notifier).initializeBattle(inventory);
+      }
+    });
   }
 
   @override
@@ -37,73 +34,7 @@ class _BattleScreenState extends ConsumerState<BattleScreen> {
     super.dispose();
   }
 
-  void _initializeBattle(List<Character> inventory) {
-    if (_playerCharacter != null) return;
-
-    // Pick the strongest character for battle
-    _playerCharacter = inventory.reduce(
-      (curr, next) => curr.attack > next.attack ? curr : next,
-    );
-    _enemyCharacter = Character.random('Monster', Rarity.epic);
-
-    _playerHp = _playerCharacter!.hp;
-    _playerMaxHp = _playerCharacter!.hp;
-    _enemyHp = _enemyCharacter!.hp;
-    _enemyMaxHp = _enemyCharacter!.hp;
-    _isPlayerTurn = true;
-    _battleEnded = false;
-    _battleLog = 'A wild ${_enemyCharacter!.name} appeared!';
-  }
-
-  Future<void> _playerAttack() async {
-    if (!_isPlayerTurn || _battleEnded) return;
-
-    await _audioPlayer.play(AssetSource('audio/clap03.ogg'));
-
-    setState(() {
-      final damage = _calculateDamage(_playerCharacter!, _enemyCharacter!);
-      _enemyHp = (_enemyHp - damage).clamp(0, _enemyMaxHp);
-      _battleLog = 'You dealt $damage damage!';
-      _isPlayerTurn = false;
-    });
-
-    _checkBattleEnd();
-
-    if (!_battleEnded) {
-      Future.delayed(const Duration(seconds: 1), _enemyAttack);
-    }
-  }
-
-  Future<void> _enemyAttack() async {
-    if (_battleEnded) return;
-
-    setState(() {
-      final damage = _calculateDamage(_enemyCharacter!, _playerCharacter!);
-      _playerHp = (_playerHp - damage).clamp(0, _playerMaxHp);
-      _battleLog = 'Enemy dealt $damage damage!';
-      _isPlayerTurn = true;
-    });
-
-    _checkBattleEnd();
-  }
-
-  int _calculateDamage(Character attacker, Character defender) {
-    // Damage = max(1, Attacker.ATK - Defender.DEF * 0.5)
-    final damage = attacker.attack - (defender.defense * 0.5);
-    return max(1, damage.toInt());
-  }
-
-  void _checkBattleEnd() {
-    if (_enemyHp <= 0) {
-      _battleEnded = true;
-      _showBattleResult(true);
-    } else if (_playerHp <= 0) {
-      _battleEnded = true;
-      _showBattleResult(false);
-    }
-  }
-
-  void _showBattleResult(bool victory) {
+  void _showBattleResult(bool victory, String enemyName) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -111,8 +42,8 @@ class _BattleScreenState extends ConsumerState<BattleScreen> {
         title: Text(victory ? 'Victory!' : 'Defeat!'),
         content: Text(
           victory
-              ? 'You defeated the ${_enemyCharacter!.name}!'
-              : 'You were defeated by the ${_enemyCharacter!.name}...',
+              ? 'You defeated the $enemyName!'
+              : 'You were defeated by the $enemyName...',
         ),
         actions: [
           TextButton(
@@ -130,6 +61,19 @@ class _BattleScreenState extends ConsumerState<BattleScreen> {
   @override
   Widget build(BuildContext context) {
     final inventory = ref.watch(characterListProvider);
+    final battleState = ref.watch(battleControllerProvider);
+
+    // Listen for battle end
+    ref.listen(battleControllerProvider, (previous, next) {
+      if (previous?.battleEnded == false && next.battleEnded == true) {
+        final victory = next.enemyHp <= 0;
+        _showBattleResult(victory, next.enemyCharacter?.name ?? 'Enemy');
+      }
+      // Play sound on player attack
+      if (previous?.isPlayerTurn == true && next.isPlayerTurn == false) {
+        _audioPlayer.play(AssetSource('audio/clap03.ogg'));
+      }
+    });
 
     if (inventory.isEmpty) {
       return Scaffold(
@@ -143,7 +87,10 @@ class _BattleScreenState extends ConsumerState<BattleScreen> {
       );
     }
 
-    _initializeBattle(inventory);
+    // Show loading while initializing
+    if (battleState.playerCharacter == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
 
     return Scaffold(
       appBar: AppBar(title: const Text('Battle Arena')),
@@ -152,9 +99,9 @@ class _BattleScreenState extends ConsumerState<BattleScreen> {
           Expanded(
             child: Center(
               child: _buildCharacterCard(
-                _enemyCharacter!,
-                hp: _enemyHp,
-                maxHp: _enemyMaxHp,
+                battleState.enemyCharacter!,
+                hp: battleState.enemyHp,
+                maxHp: battleState.enemyMaxHp,
                 isEnemy: true,
               ),
             ),
@@ -162,7 +109,7 @@ class _BattleScreenState extends ConsumerState<BattleScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: Text(
-              _battleLog,
+              battleState.battleLog,
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -173,9 +120,9 @@ class _BattleScreenState extends ConsumerState<BattleScreen> {
           Expanded(
             child: Center(
               child: _buildCharacterCard(
-                _playerCharacter!,
-                hp: _playerHp,
-                maxHp: _playerMaxHp,
+                battleState.playerCharacter!,
+                hp: battleState.playerHp,
+                maxHp: battleState.playerMaxHp,
                 isEnemy: false,
               ),
             ),
@@ -185,15 +132,18 @@ class _BattleScreenState extends ConsumerState<BattleScreen> {
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: (_isPlayerTurn && !_battleEnded)
-                    ? _playerAttack
+                onPressed:
+                    (battleState.isPlayerTurn && !battleState.battleEnded)
+                    ? () => ref
+                          .read(battleControllerProvider.notifier)
+                          .playerAttack()
                     : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
                 child: Text(
-                  _isPlayerTurn ? 'ATTACK' : 'ENEMY TURN...',
+                  battleState.isPlayerTurn ? 'ATTACK' : 'ENEMY TURN...',
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -245,7 +195,7 @@ class _BattleScreenState extends ConsumerState<BattleScreen> {
               child: Column(
                 children: [
                   LinearProgressIndicator(
-                    value: hp / maxHp,
+                    value: maxHp > 0 ? hp / maxHp : 0,
                     backgroundColor: Colors.black26,
                     color: isEnemy ? Colors.red : Colors.green,
                     minHeight: 10,

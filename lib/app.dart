@@ -19,6 +19,8 @@ class _GachaGameAppState extends ConsumerState<GachaGameApp> {
   void initState() {
     super.initState();
     _audioPlayer = AudioPlayer();
+    _audioPlayer.setReleaseMode(ReleaseMode.loop);
+    _audioPlayer.play(AssetSource('audio/techno_synth04.ogg'));
   }
 
   @override
@@ -30,8 +32,6 @@ class _GachaGameAppState extends ConsumerState<GachaGameApp> {
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
-
-    _audioPlayer.play(AssetSource('audio/techno_synth04.ogg'));
 
     return MaterialApp.router(
       title: 'Gacha Battler',
