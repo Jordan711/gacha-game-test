@@ -55,8 +55,8 @@ class _CharactersScreenState extends ConsumerState<CharactersScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Image.asset(
-                              'assets/images/${character.name.toLowerCase()}.png',
-                              height: 100,
+                              'assets/images/characters/${character.name.toLowerCase()}.png',
+                              height: 300,
                             ),
                             SizedBox(height: 20),
                             Text(
@@ -82,8 +82,8 @@ class _CharactersScreenState extends ConsumerState<CharactersScreen> {
                     );
                   },
                   leading: Image.asset(
-                    'assets/images/${character.name.toLowerCase()}.png',
-                    height: 50,
+                    'assets/images/characters/${character.name.toLowerCase()}.png',
+                    height: 200,
                   ),
                   title: Text(
                     character.name,

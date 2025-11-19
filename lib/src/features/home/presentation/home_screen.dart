@@ -7,11 +7,12 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Gacha Battler')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Image.asset('assets/images/game_banner.png', height: 200),
+            const SizedBox(height: 20),
             _buildMenuButton(
               context,
               title: 'Summon Characters',
