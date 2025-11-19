@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:game/src/core/theme/rarity_colors.dart';
 import '../../characters/data/inventory_provider.dart';
 
 class CharactersScreen extends ConsumerStatefulWidget {
@@ -63,6 +64,7 @@ class _CharactersScreenState extends ConsumerState<CharactersScreen> {
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
+                                color: rarityColors[character.rarity],
                               ),
                             ),
                             Text(
@@ -90,7 +92,10 @@ class _CharactersScreenState extends ConsumerState<CharactersScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  subtitle: Text(character.rarity.name.toUpperCase()),
+                  subtitle: Text(
+                    character.rarity.name.toUpperCase(),
+                    style: TextStyle(color: rarityColors[character.rarity]),
+                  ),
                   trailing: IconButton(
                     icon: const Icon(Icons.delete),
                     onPressed: () {
