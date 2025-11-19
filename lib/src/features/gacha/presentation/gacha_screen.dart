@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:audioplayers/audioplayers.dart';
 import '../../characters/domain/character.dart';
 import '../../characters/data/inventory_provider.dart';
+import 'package:game/src/core/theme/rarity_colors.dart';
 
 class GachaScreen extends ConsumerStatefulWidget {
   const GachaScreen({super.key});
@@ -85,21 +86,7 @@ class _GachaScreenState extends ConsumerState<GachaScreen> {
   }
 
   Widget _buildSummonResult(Character character) {
-    Color rarityColor;
-    switch (character.rarity) {
-      case Rarity.common:
-        rarityColor = Colors.grey;
-        break;
-      case Rarity.rare:
-        rarityColor = Colors.blue;
-        break;
-      case Rarity.epic:
-        rarityColor = Colors.purple;
-        break;
-      case Rarity.legendary:
-        rarityColor = Colors.orange;
-        break;
-    }
+    final Color rarityColor = rarityColors[character.rarity] ?? Colors.grey;
 
     return Card(
       color: rarityColor.withValues(alpha: 0.2),
