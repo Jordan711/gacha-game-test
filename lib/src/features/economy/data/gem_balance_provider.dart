@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:game/src/features/characters/domain/character.dart';
 
 class GemBalanceNotifier extends StateNotifier<int> {
   GemBalanceNotifier() : super(0);
@@ -14,6 +15,19 @@ class GemBalanceNotifier extends StateNotifier<int> {
       return true;
     }
     return false;
+  }
+
+  int getCharacterCost(Character character) {
+    switch (character.rarity) {
+      case Rarity.common:
+        return 5;
+      case Rarity.rare:
+        return 10;
+      case Rarity.epic:
+        return 20;
+      case Rarity.legendary:
+        return 50;
+    }
   }
 }
 

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:game/src/core/theme/rarity_colors.dart';
+import 'package:game/src/features/economy/data/gem_balance_provider.dart';
+import 'package:game/src/features/economy/widgets/gem_balance_widget.dart';
 import '../data/character_list_provider.dart';
 
 class CharactersScreen extends ConsumerStatefulWidget {
@@ -38,95 +40,123 @@ class _CharactersScreenState extends ConsumerState<CharactersScreen> {
                 'You currently have no characters, please summon some now!',
               ),
             )
-          : ListView.builder(
-              itemCount: inventory.length,
-              itemBuilder: (context, index) {
-                final character = inventory[index];
-                return ListTile(
-                  onTap: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
+          : Column(
+              children: [
+                const SizedBox(height: 16),
+                GemBalanceWidget(),
+                const SizedBox(height: 8),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: inventory.length,
+                    itemBuilder: (context, index) {
+                      final character = inventory[index];
+                      return ListTile(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: Text(
+                                character.name,
+                                textAlign: TextAlign.center,
+                              ),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Image.asset(
+                                    'assets/images/characters/${character.name.toLowerCase()}.png',
+                                    height: 250,
+                                  ),
+                                  SizedBox(height: 20),
+                                  Text(
+                                    character.rarity.name.toUpperCase(),
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: rarityColors[character.rarity],
+                                    ),
+                                  ),
+                                  Text(
+                                    'ATK: ${character.attack}  DEF: ${character.defense}  HP: ${character.hp}',
+                                  ),
+                                ],
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text('Close'),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                        leading: Image.asset(
+                          'assets/images/characters/${character.name.toLowerCase()}.png',
+                          height: 200,
+                        ),
                         title: Text(
                           character.name,
-                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Image.asset(
-                              'assets/images/characters/${character.name.toLowerCase()}.png',
-                              height: 250,
-                            ),
-                            SizedBox(height: 20),
-                            Text(
-                              character.rarity.name.toUpperCase(),
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: rarityColors[character.rarity],
+                        subtitle: Text(
+                          character.rarity.name.toUpperCase(),
+                          style: TextStyle(
+                            color: rarityColors[character.rarity],
+                          ),
+                        ),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete),
+                          onPressed: () {
+                            final cost = ref
+                                .read(gemBalanceProvider.notifier)
+                                .getCharacterCost(character);
+
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text('Delete Character'),
+                                content: Text(
+                                  'Are you sure you want to delete this character? This is a ${character.rarity.name} character! You will be refunded $cost gems.',
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text('Cancel'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      ref
+                                          .read(characterListProvider.notifier)
+                                          .removeCharacter(character.id);
+                                      Navigator.pop(context);
+
+                                      ref
+                                          .read(gemBalanceProvider.notifier)
+                                          .add(cost);
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            'Character deleted, $cost gems refunded.',
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: const Text('Delete'),
+                                  ),
+                                ],
                               ),
-                            ),
-                            Text(
-                              'ATK: ${character.attack}  DEF: ${character.defense}  HP: ${character.hp}',
-                            ),
-                          ],
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: const Text('Close'),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                  leading: Image.asset(
-                    'assets/images/characters/${character.name.toLowerCase()}.png',
-                    height: 200,
-                  ),
-                  title: Text(
-                    character.name,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  subtitle: Text(
-                    character.rarity.name.toUpperCase(),
-                    style: TextStyle(color: rarityColors[character.rarity]),
-                  ),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('Delete Character'),
-                          content: Text(
-                            'Are you sure you want to delete this character? This is a ${character.rarity.name} character!',
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: const Text('Cancel'),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                ref
-                                    .read(characterListProvider.notifier)
-                                    .removeCharacter(character.id);
-                                Navigator.pop(context);
-                              },
-                              child: const Text('Delete'),
-                            ),
-                          ],
+                            );
+                          },
                         ),
                       );
                     },
                   ),
-                );
-              },
+                ),
+              ],
             ),
     );
   }
