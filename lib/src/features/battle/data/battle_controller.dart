@@ -53,11 +53,14 @@ class BattleState {
 class BattleController extends StateNotifier<BattleState> {
   BattleController() : super(BattleState());
 
-  void initializeBattle(List<Character> inventory) {
-    // Don't re-initialize if we already have a valid battle state
-    if (state.playerCharacter != null && !state.battleEnded) return;
+  void initializeBattle(List<Character> characterList) {
+    // Re-initialize if character is deleted
+    if (characterList.contains(state.playerCharacter)) {
+      // Don't re-initialize if we already have a valid battle state
+      if (state.playerCharacter != null && !state.battleEnded) return;
+    }
 
-    final playerCharacter = inventory.reduce(
+    final playerCharacter = characterList.reduce(
       (curr, next) => curr.attack > next.attack ? curr : next,
     );
     final enemyCharacter = Character.random('Monster', Rarity.epic);
