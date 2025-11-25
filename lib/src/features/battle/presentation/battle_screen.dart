@@ -35,6 +35,7 @@ class _BattleScreenState extends ConsumerState<BattleScreen> {
   }
 
   void _showBattleResult(bool victory, String enemyName) {
+    final inventory = ref.read(characterListProvider);
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -46,6 +47,15 @@ class _BattleScreenState extends ConsumerState<BattleScreen> {
               : 'You were defeated by the $enemyName...',
         ),
         actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context); // Close dialog
+              ref
+                  .read(battleControllerProvider.notifier)
+                  .initializeBattle(inventory);
+            },
+            child: const Text('Fight new monster'),
+          ),
           TextButton(
             onPressed: () {
               Navigator.pop(context); // Close dialog
