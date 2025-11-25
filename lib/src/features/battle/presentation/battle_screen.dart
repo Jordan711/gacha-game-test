@@ -21,9 +21,11 @@ class _BattleScreenState extends ConsumerState<BattleScreen> {
     _audioPlayer = AudioPlayer();
     // Initialize or reset battle state when entering the screen
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final inventory = ref.read(characterListProvider);
-      if (inventory.isNotEmpty) {
-        ref.read(battleControllerProvider.notifier).initializeBattle(inventory);
+      final characterList = ref.read(characterListProvider);
+      if (characterList.isNotEmpty) {
+        ref
+            .read(battleControllerProvider.notifier)
+            .initializeBattle(characterList);
       }
     });
   }
@@ -35,7 +37,6 @@ class _BattleScreenState extends ConsumerState<BattleScreen> {
   }
 
   void _showBattleResult(bool victory, String enemyName) {
-    final inventory = ref.read(characterListProvider);
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -50,9 +51,10 @@ class _BattleScreenState extends ConsumerState<BattleScreen> {
           TextButton(
             onPressed: () {
               Navigator.pop(context); // Close dialog
+              final characterList = ref.read(characterListProvider);
               ref
                   .read(battleControllerProvider.notifier)
-                  .initializeBattle(inventory);
+                  .initializeBattle(characterList);
             },
             child: const Text('Fight new monster'),
           ),
@@ -70,7 +72,7 @@ class _BattleScreenState extends ConsumerState<BattleScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final inventory = ref.watch(characterListProvider);
+    final characterList = ref.watch(characterListProvider);
     final battleState = ref.watch(battleControllerProvider);
 
     // Listen for battle end
@@ -85,7 +87,7 @@ class _BattleScreenState extends ConsumerState<BattleScreen> {
       }
     });
 
-    if (inventory.isEmpty) {
+    if (characterList.isEmpty) {
       return Scaffold(
         appBar: AppBar(title: const Text('Battle Arena')),
         body: const Center(
