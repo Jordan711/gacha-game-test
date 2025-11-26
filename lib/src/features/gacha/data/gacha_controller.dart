@@ -45,6 +45,6 @@ class GachaController extends StateNotifier<GachaState> {
 }
 
 final gachaControllerProvider =
-    StateNotifierProvider<GachaController, GachaState>((ref) {
+    StateNotifierProvider.autoDispose<GachaController, GachaState>((ref) {
       return GachaController(ref);
     });
