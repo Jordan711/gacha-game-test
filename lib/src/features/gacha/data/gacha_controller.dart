@@ -40,7 +40,9 @@ class GachaController extends StateNotifier<GachaState> {
     // Add to inventory
     ref.read(characterListProvider.notifier).addCharacter(newCharacter);
 
-    state = GachaState(isSummoning: false, lastSummoned: newCharacter);
+    if (mounted) {
+      state = GachaState(isSummoning: false, lastSummoned: newCharacter);
+    }
   }
 }
 
