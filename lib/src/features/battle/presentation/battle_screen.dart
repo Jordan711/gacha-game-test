@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:game/src/features/battle/data/battle_controller.dart';
 import 'package:game/src/features/economy/data/user_level_provider.dart';
+import 'package:game/src/features/inventory/data/inventory_provider.dart';
 import '../../characters/data/character_list_provider.dart';
 import '../../characters/domain/character.dart';
 
@@ -40,6 +41,7 @@ class _BattleScreenState extends ConsumerState<BattleScreen> {
   void _showBattleResult(bool victory, String enemyName) {
     if (victory) {
       ref.read(userLevelProvider.notifier).addXp(10);
+      ref.read(inventoryProvider.notifier).addItem('ITEM_PLACEHOLDER');
     }
     showDialog(
       context: context,

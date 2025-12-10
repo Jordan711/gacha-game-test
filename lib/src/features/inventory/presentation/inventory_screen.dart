@@ -22,15 +22,26 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
           children: [
             inventory.isEmpty
                 ? Text('No items in inventory yet!')
-                : GridView.builder(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                        ),
-                    itemCount: inventory.length,
-                    itemBuilder: (context, index) {
-                      return Card(child: Center(child: Text(inventory[index])));
-                    },
+                : Expanded(
+                    child: GridView.builder(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                          ),
+                      itemCount: inventory.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.only(
+                            top: 16.0,
+                            left: 16.0,
+                            right: 16.0,
+                          ),
+                          child: Card(
+                            child: Center(child: Text(inventory[index])),
+                          ),
+                        );
+                      },
+                    ),
                   ),
           ],
         ),
